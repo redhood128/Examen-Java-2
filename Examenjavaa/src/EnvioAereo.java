@@ -1,4 +1,4 @@
-package modelos;
+
 
 public class EnvioAereo extends Envio {
     private double tarifaBaseKm = 5000; // más caro por km

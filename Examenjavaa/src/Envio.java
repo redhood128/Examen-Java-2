@@ -1,4 +1,4 @@
-package modelos;
+
 
 public abstract class Envio {
     private String codigo;
@@ -31,6 +31,8 @@ public abstract class Envio {
 
     // Polimórfico: cada tipo de envío calcula tarifa de forma diferente
     public abstract double calcularTarifa();
+
+    protected abstract Object getTipo();
 
 
 }

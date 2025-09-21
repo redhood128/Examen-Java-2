@@ -1,4 +1,4 @@
-package modelos;
+
 
 public class EnvioMaritimo extends Envio {
     private double tarifaBaseKm = 800; // económico por km

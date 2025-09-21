@@ -20,33 +20,29 @@ import javax.swing.JToolBar;
 import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 
-// Asegúrate de que los imports de tus clases del modelo sean correctos
-import modelos.Envio;
-import modelos.EnvioAereo;
-import modelos.EnvioMaritimo;
-import modelos.EnvioTerrestre;
-
 public class FrmLogistica extends JFrame {
 
-    public String[] encabezados = new String[]{"Tipo", "Código", "Cliente", "Peso", "Distancia", "Costo"};
+    public String[] encabezados = new String[] { "Código", "Cliente", "Peso", "Distancia", "Tipo", "Costo" };
 
     private JTable tblEnvios;
     private JPanel pnlEditarEnvio;
+
     private JTextField txtNumero, txtCliente, txtPeso, txtDistancia;
     private JComboBox<String> cmbTipoEnvio;
+
+    //almacenar los envíos en memoria
     private ArrayList<Envio> listaEnvios;
 
     public FrmLogistica() {
-        setSize(700, 500);
-        setTitle("Operador Logístico");
+        setSize(600, 400);
+        setTitle("Operador Logísitico");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
 
+        // lista de envíos
         listaEnvios = new ArrayList<>();
 
         JToolBar tbLogistica = new JToolBar();
 
-        // ===== TU CÓDIGO DE BOTONES CON ICONOS =====
         JButton btnAgregarEnvio = new JButton();
         btnAgregarEnvio.setIcon(new ImageIcon(getClass().getResource("/iconos/AgregarEnvio.png")));
         btnAgregarEnvio.setToolTipText("Agregar Envío");
@@ -64,65 +60,92 @@ public class FrmLogistica extends JFrame {
                 quitarEnvio();
             }
         });
-        // ==========================================
 
         tbLogistica.add(btnAgregarEnvio);
         tbLogistica.add(btnQuitarEnvio);
 
-        JPanel pnlEnvios = new JPanel(new BorderLayout());
+        JPanel pnlEnvios = new JPanel();
+        pnlEnvios.setLayout(new BoxLayout(pnlEnvios, BoxLayout.Y_AXIS));
 
         pnlEditarEnvio = new JPanel();
-        pnlEditarEnvio.setPreferredSize(new Dimension(0, 120));
+        pnlEditarEnvio.setPreferredSize(new Dimension(420, 300));
         pnlEditarEnvio.setLayout(null);
 
-        pnlEditarEnvio.add(new JLabel("Número")).setBounds(10, 10, 100, 25);
+        JLabel lblNumero = new JLabel("Número");
+        lblNumero.setBounds(10, 10, 100, 25);
+        pnlEditarEnvio.add(lblNumero);
+
         txtNumero = new JTextField();
         txtNumero.setBounds(120, 10, 150, 25);
         pnlEditarEnvio.add(txtNumero);
 
-        pnlEditarEnvio.add(new JLabel("Tipo")).setBounds(300, 10, 120, 25);
+        JLabel lblTipoEnvio = new JLabel("Tipo");
+        lblTipoEnvio.setBounds(300, 10, 120, 25);
+        pnlEditarEnvio.add(lblTipoEnvio);
+
         cmbTipoEnvio = new JComboBox<>();
-        cmbTipoEnvio.setModel(new DefaultComboBoxModel<>(new String[]{"Terrestre", "Aereo", "Maritimo"}));
+        cmbTipoEnvio.setModel(new DefaultComboBoxModel<>(new String[] { "Terrestre", "Aéreo", "Marítimo" }));
         cmbTipoEnvio.setBounds(430, 10, 150, 25);
         pnlEditarEnvio.add(cmbTipoEnvio);
 
-        pnlEditarEnvio.add(new JLabel("Cliente")).setBounds(10, 40, 100, 25);
+        JLabel lblCliente = new JLabel("Cliente");
+        lblCliente.setBounds(10, 40, 100, 25);
+        pnlEditarEnvio.add(lblCliente);
+
         txtCliente = new JTextField();
         txtCliente.setBounds(120, 40, 150, 25);
         pnlEditarEnvio.add(txtCliente);
 
-        pnlEditarEnvio.add(new JLabel("Distancia en Km")).setBounds(300, 40, 120, 25);
+        JLabel lblDistancia = new JLabel("Distancia en Km");
+        lblDistancia.setBounds(300, 40, 120, 25);
+        pnlEditarEnvio.add(lblDistancia);
+
         txtDistancia = new JTextField();
         txtDistancia.setBounds(430, 40, 150, 25);
         pnlEditarEnvio.add(txtDistancia);
 
-        pnlEditarEnvio.add(new JLabel("Peso en Kg")).setBounds(10, 70, 100, 25);
+        JLabel lblPeso = new JLabel("Peso en Kg");
+        lblPeso.setBounds(10, 70, 100, 25);
+        pnlEditarEnvio.add(lblPeso);
+
         txtPeso = new JTextField();
         txtPeso.setBounds(120, 70, 150, 25);
         pnlEditarEnvio.add(txtPeso);
 
         JButton btnGuardarEnvio = new JButton("Guardar");
         btnGuardarEnvio.setBounds(300, 70, 120, 25);
-        btnGuardarEnvio.addActionListener(e -> guardarEnvio());
+        btnGuardarEnvio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                guardarEnvio();
+            }
+        });
         pnlEditarEnvio.add(btnGuardarEnvio);
 
         JButton btnCancelarEnvio = new JButton("Cancelar");
         btnCancelarEnvio.setBounds(430, 70, 150, 25);
-        btnCancelarEnvio.addActionListener(e -> cancelarEnvio());
+        btnCancelarEnvio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                cancelarEnvio();
+            }
+        });
         pnlEditarEnvio.add(btnCancelarEnvio);
 
-        pnlEditarEnvio.setVisible(false);
+        pnlEditarEnvio.setVisible(false); 
 
         tblEnvios = new JTable();
         JScrollPane spListaEnvios = new JScrollPane(tblEnvios);
 
-        pnlEnvios.add(pnlEditarEnvio, BorderLayout.NORTH);
-        pnlEnvios.add(spListaEnvios, BorderLayout.CENTER);
+        DefaultTableModel dtm = new DefaultTableModel(null, encabezados);
+        tblEnvios.setModel(dtm);
+
+        pnlEnvios.add(pnlEditarEnvio);
+        pnlEnvios.add(spListaEnvios);
+
+        JScrollPane spEnvios = new JScrollPane(pnlEnvios);
+        spEnvios.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         getContentPane().add(tbLogistica, BorderLayout.NORTH);
         getContentPane().add(pnlEnvios, BorderLayout.CENTER);
-
-        actualizarTabla();
     }
 
     public void agregarEnvio() {
@@ -133,6 +156,7 @@ public class FrmLogistica extends JFrame {
     public void quitarEnvio() {
         int filaSeleccionada = tblEnvios.getSelectedRow();
         if (filaSeleccionada >= 0) {
+            // Eliminar de la lista en memoria
             listaEnvios.remove(filaSeleccionada);
             actualizarTabla();
         } else {
@@ -149,16 +173,15 @@ public class FrmLogistica extends JFrame {
             String tipo = (String) cmbTipoEnvio.getSelectedItem();
 
             Envio nuevoEnvio = null;
-            
-            // Usando los nombres de tus clases: EnvioTerrestre, EnvioAereo, EnvioMaritimo
+
             switch (tipo) {
                 case "Terrestre":
                     nuevoEnvio = new EnvioTerrestre(codigo, cliente, peso, distancia);
                     break;
-                case "Aereo":
+                case "Aéreo":
                     nuevoEnvio = new EnvioAereo(codigo, cliente, peso, distancia);
                     break;
-                case "Maritimo":
+                case "Marítimo":
                     nuevoEnvio = new EnvioMaritimo(codigo, cliente, peso, distancia);
                     break;
             }
@@ -169,8 +192,11 @@ public class FrmLogistica extends JFrame {
                 pnlEditarEnvio.setVisible(false);
                 limpiarCampos();
             }
+
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Por favor, ingrese valores numéricos válidos para Peso y Distancia.", "Error de formato", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Ocurrió un error inesperado: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -188,25 +214,23 @@ public class FrmLogistica extends JFrame {
     }
 
     private void actualizarTabla() {
-        DefaultTableModel dtm = new DefaultTableModel(null, encabezados);
-        DecimalFormat df = new DecimalFormat("#,##0.00");
+        DefaultTableModel dtm = (DefaultTableModel) tblEnvios.getModel();
+        dtm.setRowCount(0); // Limpia la tabla antes de llenarla
+
+        DecimalFormat df = new DecimalFormat("#.0");
 
         for (Envio envio : listaEnvios) {
-            String tipo = "";
-            if (envio instanceof EnvioTerrestre) tipo = "Terrestre";
-            else if (envio instanceof EnvioAereo) tipo = "Aereo";
-            else if (envio instanceof EnvioMaritimo) tipo = "Maritimo";
-
-            Object[] fila = new Object[]{
-                tipo,
+            Object[] fila = new Object[] {
                 envio.getCodigo(),
                 envio.getCliente(),
                 envio.getPeso(),
                 envio.getDistancia(),
-                df.format(envio.calcularTarifa())
+                envio.getTipo(),
+                df.format(envio.calcularTarifa()) // Valor formateado
             };
             dtm.addRow(fila);
         }
-        tblEnvios.setModel(dtm);
     }
+
 }
+

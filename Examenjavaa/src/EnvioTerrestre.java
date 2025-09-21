@@ -1,4 +1,4 @@
-package modelos;
+
 
 public class EnvioTerrestre extends Envio {
 
@@ -13,5 +13,10 @@ public class EnvioTerrestre extends Envio {
     @Override
     public double calcularTarifa() {
         return (getDistancia() * tarifaBaseKm) + (getPeso() * recargoPeso);
+        
+    }
+     protected Object getTipo() {
+        return null;
     }
 }
+
