@@ -20,22 +20,21 @@ import javax.swing.JToolBar;
 import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 
+// Asegúrate de que los imports de tus clases del modelo sean correctos
 import modelos.Envio;
-import modelos.EnvioTerrestre;
 import modelos.EnvioAereo;
 import modelos.EnvioMaritimo;
+import modelos.EnvioTerrestre;
 
 public class FrmLogistica extends JFrame {
 
-    public String[] columnasTabla = new String[]{"Tipo", "Código", "Cliente", "Peso", "Distancia", "Costo"};
+    public String[] encabezados = new String[]{"Tipo", "Código", "Cliente", "Peso", "Distancia", "Costo"};
 
-    private JTable tablaEnvios;
-    private JPanel panelFormulario;
-
-    private JTextField campoCodigo, campoCliente, campoPeso, campoDistancia;
-    private JComboBox<String> selectorTipo;
-
-    private ArrayList<Envio> almacenDeEnvios;
+    private JTable tblEnvios;
+    private JPanel pnlEditarEnvio;
+    private JTextField txtNumero, txtCliente, txtPeso, txtDistancia;
+    private JComboBox<String> cmbTipoEnvio;
+    private ArrayList<Envio> listaEnvios;
 
     public FrmLogistica() {
         setSize(700, 500);
@@ -43,146 +42,171 @@ public class FrmLogistica extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        almacenDeEnvios = new ArrayList<>();
+        listaEnvios = new ArrayList<>();
 
-        JToolBar barraDeAcciones = new JToolBar();
-        JButton botonAgregar = new JButton("Agregar Envío");
-        JButton botonQuitar = new JButton("Quitar Envío");
-        barraDeAcciones.add(botonAgregar);
-        barraDeAcciones.add(botonQuitar);
+        JToolBar tbLogistica = new JToolBar();
 
-        JPanel panelPrincipal = new JPanel(new BorderLayout());
+        // ===== TU CÓDIGO DE BOTONES CON ICONOS =====
+        JButton btnAgregarEnvio = new JButton();
+        btnAgregarEnvio.setIcon(new ImageIcon(getClass().getResource("/iconos/AgregarEnvio.png")));
+        btnAgregarEnvio.setToolTipText("Agregar Envío");
+        btnAgregarEnvio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                agregarEnvio();
+            }
+        });
 
-        panelFormulario = new JPanel();
-        panelFormulario.setLayout(null);
-        panelFormulario.setPreferredSize(new Dimension(0, 120));
+        JButton btnQuitarEnvio = new JButton();
+        btnQuitarEnvio.setIcon(new ImageIcon(getClass().getResource("/iconos/QuitarEnvio.png")));
+        btnQuitarEnvio.setToolTipText("Quitar Envío");
+        btnQuitarEnvio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                quitarEnvio();
+            }
+        });
+        // ==========================================
 
-        panelFormulario.add(new JLabel("Número:")).setBounds(15, 20, 100, 25);
-        campoCodigo = new JTextField();
-        campoCodigo.setBounds(80, 20, 120, 25);
-        panelFormulario.add(campoCodigo);
+        tbLogistica.add(btnAgregarEnvio);
+        tbLogistica.add(btnQuitarEnvio);
 
-        panelFormulario.add(new JLabel("Cliente:")).setBounds(15, 55, 100, 25);
-        campoCliente = new JTextField();
-        campoCliente.setBounds(80, 55, 120, 25);
-        panelFormulario.add(campoCliente);
+        JPanel pnlEnvios = new JPanel(new BorderLayout());
 
-        panelFormulario.add(new JLabel("Tipo:")).setBounds(230, 20, 100, 25);
-        selectorTipo = new JComboBox<>(new String[]{"Terrestre", "Aereo", "Maritimo"});
-        selectorTipo.setBounds(340, 20, 120, 25);
-        panelFormulario.add(selectorTipo);
+        pnlEditarEnvio = new JPanel();
+        pnlEditarEnvio.setPreferredSize(new Dimension(0, 120));
+        pnlEditarEnvio.setLayout(null);
 
-        panelFormulario.add(new JLabel("Distancia (Km):")).setBounds(230, 55, 100, 25);
-        campoDistancia = new JTextField();
-        campoDistancia.setBounds(340, 55, 120, 25);
-        panelFormulario.add(campoDistancia);
+        pnlEditarEnvio.add(new JLabel("Número")).setBounds(10, 10, 100, 25);
+        txtNumero = new JTextField();
+        txtNumero.setBounds(120, 10, 150, 25);
+        pnlEditarEnvio.add(txtNumero);
 
-        panelFormulario.add(new JLabel("Peso (Kg):")).setBounds(490, 20, 100, 25);
-        campoPeso = new JTextField();
-        campoPeso.setBounds(570, 20, 100, 25);
-        panelFormulario.add(campoPeso);
+        pnlEditarEnvio.add(new JLabel("Tipo")).setBounds(300, 10, 120, 25);
+        cmbTipoEnvio = new JComboBox<>();
+        cmbTipoEnvio.setModel(new DefaultComboBoxModel<>(new String[]{"Terrestre", "Aereo", "Maritimo"}));
+        cmbTipoEnvio.setBounds(430, 10, 150, 25);
+        pnlEditarEnvio.add(cmbTipoEnvio);
 
-        JButton botonGuardar = new JButton("Guardar");
-        botonGuardar.setBounds(490, 55, 90, 25);
-        panelFormulario.add(botonGuardar);
+        pnlEditarEnvio.add(new JLabel("Cliente")).setBounds(10, 40, 100, 25);
+        txtCliente = new JTextField();
+        txtCliente.setBounds(120, 40, 150, 25);
+        pnlEditarEnvio.add(txtCliente);
 
-        JButton botonCancelar = new JButton("Cancelar");
-        botonCancelar.setBounds(590, 55, 90, 25);
-        panelFormulario.add(botonCancelar);
+        pnlEditarEnvio.add(new JLabel("Distancia en Km")).setBounds(300, 40, 120, 25);
+        txtDistancia = new JTextField();
+        txtDistancia.setBounds(430, 40, 150, 25);
+        pnlEditarEnvio.add(txtDistancia);
 
-        panelFormulario.setVisible(false);
+        pnlEditarEnvio.add(new JLabel("Peso en Kg")).setBounds(10, 70, 100, 25);
+        txtPeso = new JTextField();
+        txtPeso.setBounds(120, 70, 150, 25);
+        pnlEditarEnvio.add(txtPeso);
 
-        tablaEnvios = new JTable();
-        JScrollPane panelConScroll = new JScrollPane(tablaEnvios);
+        JButton btnGuardarEnvio = new JButton("Guardar");
+        btnGuardarEnvio.setBounds(300, 70, 120, 25);
+        btnGuardarEnvio.addActionListener(e -> guardarEnvio());
+        pnlEditarEnvio.add(btnGuardarEnvio);
 
-        panelPrincipal.add(panelFormulario, BorderLayout.NORTH);
-        panelPrincipal.add(panelConScroll, BorderLayout.CENTER);
+        JButton btnCancelarEnvio = new JButton("Cancelar");
+        btnCancelarEnvio.setBounds(430, 70, 150, 25);
+        btnCancelarEnvio.addActionListener(e -> cancelarEnvio());
+        pnlEditarEnvio.add(btnCancelarEnvio);
 
-        getContentPane().add(barraDeAcciones, BorderLayout.NORTH);
-        getContentPane().add(panelPrincipal, BorderLayout.CENTER);
+        pnlEditarEnvio.setVisible(false);
 
-        botonAgregar.addActionListener(e -> activarFormulario());
-        botonQuitar.addActionListener(e -> removerEnvio());
-        botonGuardar.addActionListener(e -> registrarEnvio());
-        botonCancelar.addActionListener(e -> desactivarFormulario());
+        tblEnvios = new JTable();
+        JScrollPane spListaEnvios = new JScrollPane(tblEnvios);
 
-        pintarTabla();
+        pnlEnvios.add(pnlEditarEnvio, BorderLayout.NORTH);
+        pnlEnvios.add(spListaEnvios, BorderLayout.CENTER);
+
+        getContentPane().add(tbLogistica, BorderLayout.NORTH);
+        getContentPane().add(pnlEnvios, BorderLayout.CENTER);
+
+        actualizarTabla();
     }
 
-    public void activarFormulario() {
-        vaciarCampos();
-        panelFormulario.setVisible(true);
+    public void agregarEnvio() {
+        limpiarCampos();
+        pnlEditarEnvio.setVisible(true);
     }
 
-    public void desactivarFormulario() {
-        panelFormulario.setVisible(false);
-    }
-
-    public void removerEnvio() {
-        int filaSeleccionada = tablaEnvios.getSelectedRow();
+    public void quitarEnvio() {
+        int filaSeleccionada = tblEnvios.getSelectedRow();
         if (filaSeleccionada >= 0) {
-            almacenDeEnvios.remove(filaSeleccionada);
-            pintarTabla();
+            listaEnvios.remove(filaSeleccionada);
+            actualizarTabla();
         } else {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un envío de la lista.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Por favor, seleccione un envío para eliminar.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    public void registrarEnvio() {
+    public void guardarEnvio() {
         try {
-            double peso = Double.parseDouble(campoPeso.getText());
-            double distancia = Double.parseDouble(campoDistancia.getText());
-            String codigo = campoCodigo.getText();
-            String cliente = campoCliente.getText();
-            String tipo = (String) selectorTipo.getSelectedItem();
+            String codigo = txtNumero.getText();
+            String cliente = txtCliente.getText();
+            double peso = Double.parseDouble(txtPeso.getText());
+            double distancia = Double.parseDouble(txtDistancia.getText());
+            String tipo = (String) cmbTipoEnvio.getSelectedItem();
 
-            Envio nuevoIngreso = null;
-            if (tipo.equals("Terrestre")) {
-                nuevoIngreso = new EnvioTerrestre(codigo, cliente, peso, distancia);
-            } else if (tipo.equals("Aereo")) {
-                nuevoIngreso = new EnvioAereo(codigo, cliente, peso, distancia);
-            } else if (tipo.equals("Maritimo")) {
-                nuevoIngreso = new EnvioMaritimo(codigo, cliente, peso, distancia);
-            }
-
-            if (nuevoIngreso != null) {
-                almacenDeEnvios.add(nuevoIngreso);
-                pintarTabla();
-                desactivarFormulario();
-            }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "El peso y la distancia deben ser números.", "Error de Entrada", JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
-    private void vaciarCampos() {
-        campoCodigo.setText("");
-        campoCliente.setText("");
-        campoPeso.setText("");
-        campoDistancia.setText("");
-        selectorTipo.setSelectedIndex(0);
-    }
-
-    private void pintarTabla() {
-        DefaultTableModel modelo = new DefaultTableModel(null, columnasTabla);
-        DecimalFormat formatoMoneda = new DecimalFormat("#,##0.00");
-
-        for (Envio envioActual : almacenDeEnvios) {
-            String tipoEnvio = "";
-            if (envioActual instanceof EnvioTerrestre) tipoEnvio = "Terrestre";
-            else if (envioActual instanceof EnvioAereo) tipoEnvio = "Aereo";
-            else if (envioActual instanceof EnvioMaritimo) tipoEnvio = "Maritimo";
+            Envio nuevoEnvio = null;
             
-            Object[] fila = new Object[]{
-                tipoEnvio,
-                envioActual.getCodigo(),
-                envioActual.getCliente(),
-                envioActual.getPeso(),
-                envioActual.getDistancia(),
-                formatoMoneda.format(envioActual.calcularTarifa())
-            };
-            modelo.addRow(fila);
+            // Usando los nombres de tus clases: EnvioTerrestre, EnvioAereo, EnvioMaritimo
+            switch (tipo) {
+                case "Terrestre":
+                    nuevoEnvio = new EnvioTerrestre(codigo, cliente, peso, distancia);
+                    break;
+                case "Aereo":
+                    nuevoEnvio = new EnvioAereo(codigo, cliente, peso, distancia);
+                    break;
+                case "Maritimo":
+                    nuevoEnvio = new EnvioMaritimo(codigo, cliente, peso, distancia);
+                    break;
+            }
+
+            if (nuevoEnvio != null) {
+                listaEnvios.add(nuevoEnvio);
+                actualizarTabla();
+                pnlEditarEnvio.setVisible(false);
+                limpiarCampos();
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Por favor, ingrese valores numéricos válidos para Peso y Distancia.", "Error de formato", JOptionPane.ERROR_MESSAGE);
         }
-        tablaEnvios.setModel(modelo);
+    }
+
+    public void cancelarEnvio() {
+        pnlEditarEnvio.setVisible(false);
+        limpiarCampos();
+    }
+
+    private void limpiarCampos() {
+        txtNumero.setText("");
+        txtCliente.setText("");
+        txtPeso.setText("");
+        txtDistancia.setText("");
+        cmbTipoEnvio.setSelectedIndex(0);
+    }
+
+    private void actualizarTabla() {
+        DefaultTableModel dtm = new DefaultTableModel(null, encabezados);
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+
+        for (Envio envio : listaEnvios) {
+            String tipo = "";
+            if (envio instanceof EnvioTerrestre) tipo = "Terrestre";
+            else if (envio instanceof EnvioAereo) tipo = "Aereo";
+            else if (envio instanceof EnvioMaritimo) tipo = "Maritimo";
+
+            Object[] fila = new Object[]{
+                tipo,
+                envio.getCodigo(),
+                envio.getCliente(),
+                envio.getPeso(),
+                envio.getDistancia(),
+                df.format(envio.calcularTarifa())
+            };
+            dtm.addRow(fila);
+        }
+        tblEnvios.setModel(dtm);
     }
 }
